@@ -3,324 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dumpling Master: Grand Line</title>
+    <title>Dumpling Master: Baratie Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         
         * { box-sizing: border-box; }
         body {
-            margin: 0; padding: 0; background-color: #121212;
+            margin: 0; padding: 0; background-color: #000;
             font-family: 'Poppins', sans-serif;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden; user-select: none;
             color: #fff;
         }
+        
         #game-container {
             width: 100%; max-width: 400px; height: 100vh;
-            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
-            display: flex; flex-direction: column; position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            position: relative; display: flex; flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.9); overflow: hidden;
         }
 
-        /* Top HUD */
+        /* --- BARATIE RESTAURANT BACKGROUND --- */
+        #ocean-view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 40%;
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            z-index: 0;
+        }
+        .sun {
+            position: absolute; top: 20%; right: 10%; width: 60px; height: 60px;
+            background: rgba(255, 215, 0, 0.8); border-radius: 50%;
+            box-shadow: 0 0 40px #ffd700;
+        }
+        #ship-deck {
+            position: absolute; top: 40%; left: 0; width: 100%; height: 60%;
+            /* Wooden floor texture using repeating gradients */
+            background: repeating-linear-gradient(
+                90deg, 
+                #5c3a21, 
+                #5c3a21 40px, 
+                #3e2723 40px, 
+                #3e2723 43px
+            );
+            z-index: 0;
+            border-top: 15px solid #27150c; /* Railing */
+            box-shadow: inset 0 20px 20px rgba(0,0,0,0.5);
+        }
+        .railing-pillar {
+            position: absolute; top: -15px; width: 15px; height: 30px;
+            background: #3e2723; border-right: 2px solid #1a0e08;
+        }
+        /* ------------------------------------- */
+
+        /* HUD & UI Foreground */
         #hud {
             display: flex; justify-content: space-between; padding: 15px;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-            border-bottom: 2px solid #f39c12; z-index: 10;
+            background: rgba(39, 21, 12, 0.8); border-bottom: 3px solid #f1c40f;
+            z-index: 10; position: relative;
         }
         .stat-box { display: flex; flex-direction: column; align-items: center; }
-        .stat-label { font-size: 11px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-label { font-size: 11px; color: #d4a373; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         .stat-value { font-size: 18px; font-weight: 900; color: #f1c40f; }
 
-        /* Order Display Zone */
         #order-zone {
             padding: 15px; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 10; position: relative; margin-top: 10px;
         }
         .customer-avatar {
-            font-size: 50px; margin-right: 15px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            font-size: 55px; margin-right: 15px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6));
             animation: float 2s infinite ease-in-out;
         }
         .order-ticket {
-            background: #fff; color: #2c3e50; padding: 10px 15px; border-radius: 12px;
-            font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative; width: 100%;
+            background: rgba(255, 255, 255, 0.95); color: #2c3e50; padding: 10px 15px; 
+            border-radius: 12px; font-weight: 700; box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            position: relative; width: 100%; border: 2px solid #f1c40f;
         }
         .order-ticket::before {
-            content: ''; position: absolute; left: -10px; top: 20px;
-            border-width: 10px 10px 10px 0; border-style: solid;
-            border-color: transparent #fff transparent transparent;
+            content: ''; position: absolute; left: -12px; top: 20px;
+            border-width: 10px 12px 10px 0; border-style: solid;
+            border-color: transparent rgba(255, 255, 255, 0.95) transparent transparent;
         }
-        #recipe-hint { font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 900; }
+        #recipe-hint { font-size: 12px; color: #c0392b; margin-top: 5px; font-weight: 900; }
 
-        /* Assembly Plate */
         #prep-zone {
             flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative;
+            position: relative; z-index: 10;
+        }
+        #table-surface {
+            position: absolute; bottom: 0; width: 90%; height: 100px;
+            background: rgba(0, 0, 0, 0.3); border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            z-index: 9; filter: blur(5px);
         }
         #plate {
-            width: 150px; height: 150px; background: radial-gradient(circle, #ecf0f1 0%, #bdc3c7 100%);
-            border-radius: 50%; border: 5px solid #95a5a6;
+            width: 160px; height: 160px; background: radial-gradient(circle, #fdfbfb 0%, #ebedee 100%);
+            border-radius: 50%; border: 6px solid #b2bec3;
             display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
-            font-size: 60px; position: relative; transition: all 0.3s;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.7), inset 0 5px 10px rgba(0,0,0,0.1);
+            font-size: 60px; position: relative; transition: all 0.3s; z-index: 10;
         }
         .plate-item { position: absolute; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .status-badge {
-            position: absolute; bottom: -15px; background: #e67e22; color: #fff;
-            font-size: 12px; padding: 5px 15px; border-radius: 20px; font-weight: 900;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 2px solid #d35400;
+            position: absolute; bottom: -15px; background: #d35400; color: #fff;
+            font-size: 12px; padding: 6px 18px; border-radius: 20px; font-weight: 900;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.5); border: 2px solid #e67e22;
         }
 
-        /* Kitchen Controls */
         #kitchen-station {
-            background: #111; padding: 15px; border-top: 3px solid #f39c12;
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10;
+            background: #1a0e08; padding: 15px; border-top: 4px solid #f1c40f;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10; position: relative;
         }
         .btn-group-title {
-            grid-column: span 4; font-size: 11px; color: #7f8c8d;
+            grid-column: span 4; font-size: 11px; color: #d4a373;
             text-transform: uppercase; text-align: center; margin-bottom: -5px; margin-top: 5px;
         }
         .craft-btn {
-            background: #2c3e50; border: 2px solid #34495e; border-radius: 12px;
-            color: #ecf0f1; font-size: 24px; padding: 10px 0; display: flex; flex-direction: column;
-            align-items: center; cursor: pointer; transition: 0.1s;
+            background: linear-gradient(145deg, #3e2723, #27150c); border: 2px solid #5c3a21; border-radius: 12px;
+            color: #ecf0f1; font-size: 26px; padding: 10px 0; display: flex; flex-direction: column;
+            align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #1a0e08;
         }
         .craft-btn span { font-size: 10px; font-weight: 700; margin-top: 3px; font-family: 'Poppins', sans-serif;}
-        .craft-btn:active { transform: scale(0.9); background: #34495e; }
+        .craft-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #1a0e08; }
         
-        .action-btn { background: #e74c3c; border-color: #c0392b; grid-column: span 2; }
-        .serve-btn { background: #27ae60; border-color: #2ecc71; grid-column: span 2; }
+        .action-btn { background: linear-gradient(145deg, #c0392b, #922b21); border-color: #e74c3c; grid-column: span 2; box-shadow: 0 4px 0 #7b241c;}
+        .action-btn:active { box-shadow: 0 0 0 #7b241c; }
+        .serve-btn { background: linear-gradient(145deg, #27ae60, #1e8449); border-color: #2ecc71; grid-column: span 2; box-shadow: 0 4px 0 #196f3d;}
+        .serve-btn:active { box-shadow: 0 0 0 #196f3d; }
 
-        /* UI Overlay */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 20;
+            background: rgba(26, 14, 8, 0.9); backdrop-filter: blur(8px); z-index: 30;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
-        .overlay h1 { color: #f1c40f; font-size: 38px; margin: 0 0 10px 0; text-transform: uppercase; }
-        .overlay p { color: #ecf0f1; font-size: 14px; margin-bottom: 30px; padding: 0 20px; line-height: 1.5; }
+        .overlay h1 { color: #f1c40f; font-size: 40px; margin: 0 0 5px 0; text-transform: uppercase; text-shadow: 0 5px 10px rgba(0,0,0,0.8); }
+        .overlay h2 { color: #fff; font-size: 18px; margin: 0 0 20px 0; letter-spacing: 2px; }
+        .overlay p { color: #ecf0f1; font-size: 14px; margin-bottom: 30px; padding: 0 20px; line-height: 1.6; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; border: 1px solid #5c3a21;}
         .start-btn {
-            background: #f39c12; color: #fff; border: none; padding: 15px 40px;
+            background: #f1c40f; color: #1a0e08; border: none; padding: 15px 40px;
             font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 6px 0 #d35400; transition: 0.2s;
+            box-shadow: 0 6px 0 #b7950b; transition: 0.2s;
         }
-        .start-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #d35400; }
-
-        /* Animations */
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        
-        .shake-err { animation: shake 0.3s ease-in-out; border-color: #e74c3c !important; }
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body>
-
-<div id="game-container">
-    <div id="hud">
-        <div class="stat-box"><span class="stat-label">Score</span><span class="stat-value" id="score">0</span></div>
-        <div class="stat-box"><span class="stat-label">Time</span><span class="stat-value" id="timer" style="color:#e74c3c;">60s</span></div>
-        <div class="stat-box"><span class="stat-label">Combo</span><span class="stat-value" id="combo">x1</span></div>
-    </div>
-
-    <div id="order-zone" class="hidden">
-        <div class="customer-avatar" id="customer">👒</div>
-        <div class="order-ticket">
-            I need a <br><span id="order-name" style="color:#e67e22; font-size:18px;"></span>!
-            <div id="recipe-hint"></div>
-        </div>
-    </div>
-
-    <div id="prep-zone">
-        <div id="plate">
-            <!-- Ingredients will be injected here -->
-            <div class="status-badge" id="plate-status">EMPTY</div>
-        </div>
-    </div>
-
-    <div id="kitchen-station">
-        <!-- Wrapper & Fillings -->
-        <div class="btn-group-title">1. Wrapper & 2. Fillings</div>
-        <button class="craft-btn" onclick="addIngredient('wrapper', '🥟')">🥟<span>Dough</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🍖')">🍖<span>Meat</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🥬')">🥬<span>Veggie</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🦐')">🦐<span>Shrimp</span></button>
-        
-        <!-- Cooking Methods -->
-        <div class="btn-group-title">3. Cooking Method</div>
-        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '♨️')">♨️<span>Steam</span></button>
-        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '🍳')">🍳<span>Pan-Fry</span></button>
-
-        <!-- Actions -->
-        <div class="btn-group-title">4. Actions</div>
-        <button class="craft-btn action-btn" onclick="trashPlate()">🗑️<span>Trash</span></button>
-        <button class="craft-btn serve-btn" onclick="serveOrder()">🛎️<span>Serve</span></button>
-    </div>
-
-    <div class="overlay" id="start-screen">
-        <h1>Dumpling Master</h1>
-        <p>1. Tap Dough (🥟)<br>2. Add correct Filling (🍖,🥬,🦐)<br>3. Cook it (♨️ or 🍳)<br>4. Serve! (🛎️)</p>
-        <button class="start-btn" onclick="startGame()">START CRAFTING</button>
-    </div>
-
-    <div class="overlay hidden" id="game-over-screen">
-        <h1>Time's Up!</h1>
-        <p>Final Score: <span id="final-score" style="color:#f1c40f; font-size:24px; font-weight:bold;">0</span></p>
-        <button class="start-btn" onclick="startGame()">PLAY AGAIN</button>
-    </div>
-</div>
-
-<script>
-    // Recipes Dictionary (Advanced Data Structure for the Professor)
-    const menu = [
-        { name: "Steamed Pork Bao", req: { wrapper: true, filling: '🍖', cook: '♨️' }, hint: "Dough + Meat + Steam" },
-        { name: "Fried Veggie Gyoza", req: { wrapper: true, filling: '🥬', cook: '🍳' }, hint: "Dough + Veggie + Fry" },
-        { name: "Spicy Shrimp Har Gow", req: { wrapper: true, filling: '🦐', cook: '♨️' }, hint: "Dough + Shrimp + Steam" },
-        { name: "Fried Meat Dumpling", req: { wrapper: true, filling: '🍖', cook: '🍳' }, hint: "Dough + Meat + Fry" }
-    ];
-    
-    const characters = ["👒", "⚔️", "🍳", "🍊", "🦌", "🦈"];
-    
-    let state = {
-        score: 0, timeLeft: 60, combo: 1, isPlaying: false,
-        currentOrder: null,
-        plate: { wrapper: false, filling: null, cook: null }
-    };
-    
-    let timerInterval;
-
-    function startGame() {
-        state = { score: 0, timeLeft: 60, combo: 1, isPlaying: true, currentOrder: null, plate: { wrapper: false, filling: null, cook: null } };
-        document.getElementById("start-screen").classList.add("hidden");
-        document.getElementById("game-over-screen").classList.add("hidden");
-        document.getElementById("order-zone").classList.remove("hidden");
-        
-        updateHUD();
-        trashPlate(); // Reset plate
-        generateOrder();
-        timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    function generateOrder() {
-        let order = menu[Math.floor(Math.random() * menu.length)];
-        let char = characters[Math.floor(Math.random() * characters.length)];
-        
-        state.currentOrder = order;
-        document.getElementById("customer").textContent = char;
-        document.getElementById("order-name").textContent = order.name;
-        document.getElementById("recipe-hint").textContent = order.hint;
-    }
-
-    // Crafting Logic (Step-by-step assembly)
-    function addIngredient(type, icon) {
-        if (!state.isPlaying) return;
-        const plateEl = document.getElementById("plate");
-
-        if (type === 'wrapper' && !state.plate.wrapper) {
-            state.plate.wrapper = true;
-            renderPlate();
-        } 
-        else if (type === 'filling' && state.plate.wrapper && !state.plate.filling && !state.plate.cook) {
-            state.plate.filling = icon;
-            renderPlate();
-        } 
-        else if (type === 'cook' && state.plate.wrapper && state.plate.filling && !state.plate.cook) {
-            state.plate.cook = icon;
-            renderPlate();
-        } 
-        else {
-            // Invalid move (e.g., adding filling before wrapper)
-            plateEl.classList.add("shake-err");
-            setTimeout(() => plateEl.classList.remove("shake-err"), 300);
-        }
-    }
-
-    function renderPlate() {
-        const plateEl = document.getElementById("plate");
-        let html = '';
-        let status = "EMPTY";
-
-        if (state.plate.wrapper) {
-            html += `<div class="plate-item" style="font-size: 70px; color:#f5cd79;">🥟</div>`;
-            status = "RAW DOUGH";
-        }
-        if (state.plate.filling) {
-            html += `<div class="plate-item" style="font-size: 35px; z-index:2; margin-top:10px;">${state.plate.filling}</div>`;
-            status = "UNCOOKED";
-        }
-        if (state.plate.cook) {
-            html += `<div class="plate-item" style="font-size: 80px; z-index:3; opacity:0.8;">${state.plate.cook}</div>`;
-            status = "READY TO SERVE";
-            plateEl.style.borderColor = "#2ecc71"; // Green border when cooked
-        } else {
-            plateEl.style.borderColor = "#95a5a6";
-        }
-
-        html += `<div class="status-badge" id="plate-status">${status}</div>`;
-        plateEl.innerHTML = html;
-    }
-
-    function trashPlate() {
-        if (!state.isPlaying) return;
-        state.plate = { wrapper: false, filling: null, cook: null };
-        state.combo = 1; // Penalty for trashing
-        updateHUD();
-        renderPlate();
-    }
-
-    function serveOrder() {
-        if (!state.isPlaying) return;
-        
-        let p = state.plate;
-        let req = state.currentOrder.req;
-        
-        // Check if plate matches requirements exactly
-        let isCorrect = (p.wrapper === req.wrapper && p.filling === req.filling && p.cook === req.cook);
-        
-        if (isCorrect) {
-            // Success
-            let points = 20 * state.combo;
-            state.score += points;
-            state.combo++;
-            
-            // Visual feedback
-            document.getElementById("plate").style.transform = "translateY(-50px) scale(0)";
-            setTimeout(() => {
-                document.getElementById("plate").style.transform = "none";
-                trashPlate(); // reset plate invisibly
-                generateOrder();
-            }, 300);
-            
-        } else {
-            // Failure
-            state.score = Math.max(0, state.score - 10);
-            state.combo = 1;
-            document.getElementById("plate").classList.add("shake-err");
-            setTimeout(() => document.getElementById("plate").classList.remove("shake-err"), 300);
-        }
-        updateHUD();
-    }
-
-    function updateTimer() {
-        state.timeLeft--;
-        document.getElementById("timer").textContent = state.timeLeft + "s";
-        if (state.timeLeft <= 0) endGame();
-    }
-
-    function updateHUD() {
-        document.getElementById("score").textContent = state.score;
-        document.getElementById("combo").textContent = "x" + state.combo;
-    }
-
-    function endGame() {
-        state.isPlaying = false;
-        clearInterval(timerInterval);
-        document.getElementById("final-score").textContent = state.score;
-        document.getElementById("game-over-screen").classList.remove("hidden");
-        document.getElementById("order-zone").classList.add("hidden");
-    }
-</script>
-</body>
-</html>
+        .start
