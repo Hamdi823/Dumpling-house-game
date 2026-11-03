@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dumpling House</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #FDF5E6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: linear-gradient(135deg, #8B0000 0%, #B22222 100%);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            color: #FFD700;
+        }
+        #header {
+            padding: 20px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #FFD700;
+        }
+        h1 { margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
+        #score-board { font-size: 20px; margin-top: 10px; font-weight: bold; }
+        #customer-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        #character { font-size: 80px; margin-bottom: 10px; transition: transform 0.2s; }
+        #order-bubble {
+            background: white;
+            color: #8B0000;
+            padding: 15px 25px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #order-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        #kitchen-area {
+            padding: 20px;
+            background-color: #FFF8DC;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-top: 4px solid #FFD700;
+        }
+        .recipe-btn {
+            background-color: #FF8C00;
+            border: 2px solid #D2691E;
+            border-radius: 12px;
+            padding: 15px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .recipe-btn:active { transform: scale(0.95); }
+        .recipe-icon { font-size: 30px; margin-bottom: 5px; }
+        #message {
+            position: absolute;
+            top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="header">
+        <h1>Dumpling House</h1>
+        <div id="score-board">Score: <span id="score">0</span></div>
+    </div>
+    
+    <div id="customer-area">
+        <div id="message"></div>
+        <div id="order-bubble">I want...<br><span id="current-order"></span></div>
+        <div id="character">👲</div>
+    </div>
+
+    <div id="kitchen-area">
+        <button class="recipe-btn" onclick="serveFood('Pork Dumpling')">
+            <span class="recipe-icon">🥟</span>
+            Pork Dumpling
+        </button>
+        <button class="recipe-btn" onclick="serveFood('Veggie Gyoza')">
+            <span class="recipe-icon">🥬</span>
+            Veggie Gyoza
+        </button>
+        <button class="recipe-btn" onclick="serveFood('Spicy Shrimp')">
+            <span class="recipe-icon">🦐</span>
+            Spicy Shrimp
+        </button>
+        <button class="recipe-btn" onclick="serveFood('Sweet Bao')">
+            <span class="recipe-icon">🥠</span>
+            Sweet Bao
+        </button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let currentRecipe = "";
+    
+    const recipes = ["Pork Dumpling", "Veggie Gyoza", "Spicy Shrimp", "Sweet Bao"];
+    const characters = ["👲", "👵", "👨‍💼", "👩‍🎓", "🧛"];
+    const characterEl = document.getElementById("character");
+    const orderEl = document.getElementById("current-order");
+    const scoreEl = document.getElementById("score");
+    const messageEl = document.getElementById("message");
+
+    function spawnCustomer() {
+        // Pick random character and recipe
+        const randomChar = characters[Math.floor(Math.random() * characters.length)];
+        currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+        
+        characterEl.textContent = randomChar;
+        orderEl.textContent = currentRecipe;
+        characterEl.style.transform = "scale(1)";
+    }
+
+    function showMessage(text, color) {
+        messageEl.textContent = text;
+        messageEl.style.color = color;
+        messageEl.style.opacity = 1;
+        messageEl.style.transform = "translateY(-20px)";
+        
+        setTimeout(() => {
+            messageEl.style.opacity = 0;
+            messageEl.style.transform = "translateY(0)";
+        }, 800);
+    }
+
+    function serveFood(foodName) {
+        if (foodName === currentRecipe) {
+            score += 10;
+            showMessage("+10 Perfect!", "#32CD32");
+            characterEl.style.transform = "scale(1.2)"; // Happy jump
+            setTimeout(spawnCustomer, 400);
+        } else {
+            score -= 5;
+            showMessage("-5 Wrong Order!", "#FF4500");
+        }
+        scoreEl.textContent = score;
+    }
+
+    // Start Game
+    spawnCustomer();
+</script>
+
+</body>
+</html>
