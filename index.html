@@ -11,7 +11,7 @@
         
         body {
             margin: 0; padding: 0; 
-            background-color: #2c3e50; /* Masaüstünde oyunun dışı lacivert dursun */
+            background-color: #2c3e50; 
             font-family: 'Poppins', sans-serif;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden; user-select: none;
@@ -26,255 +26,41 @@
             border: 2px solid #34495e;
         }
 
-        /* --- BARATIE BACKGROUND --- */
-        #ocean-view {
-            position: absolute; top: 0; left: 0; width: 100%; height: 40%;
-            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
-            z-index: 0;
-        }
-        .sun {
-            position: absolute; top: 15%; right: 15%; width: 55px; height: 55px;
-            background: #ffd700; border-radius: 50%;
-            box-shadow: 0 0 30px #ffd700;
-        }
-        #ship-deck {
-            position: absolute; top: 40%; left: 0; width: 100%; height: 60%;
-            background: #5c3a21; z-index: 0;
-            border-top: 12px solid #27150c;
-            box-shadow: inset 0 20px 20px rgba(0,0,0,0.5);
-        }
-        /* ------------------------------------- */
+        #ocean-view { position: absolute; top: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); z-index: 0; }
+        .sun { position: absolute; top: 15%; right: 15%; width: 55px; height: 55px; background: #ffd700; border-radius: 50%; box-shadow: 0 0 30px #ffd700; }
+        #ship-deck { position: absolute; top: 40%; left: 0; width: 100%; height: 60%; background: #5c3a21; z-index: 0; border-top: 12px solid #27150c; box-shadow: inset 0 20px 20px rgba(0,0,0,0.5); }
 
-        /* HUD & UI Foreground */
-        #hud {
-            display: flex; justify-content: space-between; padding: 12px 20px;
-            background: rgba(39, 21, 12, 0.9); border-bottom: 3px solid #f1c40f;
-            z-index: 10; position: relative;
-        }
+        #hud { display: flex; justify-content: space-between; padding: 12px 20px; background: rgba(39, 21, 12, 0.9); border-bottom: 3px solid #f1c40f; z-index: 10; position: relative; }
         .stat-box { display: flex; flex-direction: column; align-items: center; }
         .stat-label { font-size: 11px; color: #d4a373; text-transform: uppercase; font-weight: bold; }
         .stat-value { font-size: 18px; font-weight: 900; color: #f1c40f; }
 
-        #order-zone {
-            padding: 15px; display: flex; align-items: center; justify-content: center;
-            z-index: 10; position: relative; margin: 10px;
-            background: rgba(255, 255, 255, 0.95); border-radius: 12px;
-            border: 2px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-        .customer-avatar {
-            font-size: 45px; margin-right: 15px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
-        }
+        #order-zone { padding: 15px; display: flex; align-items: center; justify-content: center; z-index: 10; position: relative; margin: 10px; background: rgba(255, 255, 255, 0.95); border-radius: 12px; border: 2px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .customer-avatar { font-size: 45px; margin-right: 15px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
         .order-details { color: #2c3e50; font-weight: 700; }
         #recipe-hint { font-size: 12px; color: #c0392b; margin-top: 5px; font-weight: 900; }
 
-        #prep-zone {
-            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative; z-index: 10;
-        }
-        #plate {
-            width: 150px; height: 150px; background: radial-gradient(circle, #fdfbfb 0%, #ebedee 100%);
-            border-radius: 50%; border: 6px solid #b2bec3;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
-            font-size: 60px; position: relative; transition: all 0.3s; z-index: 10;
-        }
+        #prep-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10; }
+        #plate { width: 150px; height: 150px; background: radial-gradient(circle, #fdfbfb 0%, #ebedee 100%); border-radius: 50%; border: 6px solid #b2bec3; display: flex; justify-content: center; align-items: center; box-shadow: 0 15px 25px rgba(0,0,0,0.6); font-size: 60px; position: relative; transition: all 0.3s; z-index: 10; }
         .plate-item { position: absolute; }
-        .status-badge {
-            position: absolute; bottom: -15px; background: #d35400; color: #fff;
-            font-size: 12px; padding: 6px 18px; border-radius: 20px; font-weight: 900;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.5); border: 2px solid #e67e22;
-        }
+        .status-badge { position: absolute; bottom: -15px; background: #d35400; color: #fff; font-size: 12px; padding: 6px 18px; border-radius: 20px; font-weight: 900; box-shadow: 0 6px 10px rgba(0,0,0,0.5); border: 2px solid #e67e22; }
 
-        #kitchen-station {
-            background: #1a0e08; padding: 15px; border-top: 4px solid #f1c40f;
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10; position: relative;
-        }
-        .btn-group-title {
-            grid-column: span 4; font-size: 11px; color: #d4a373;
-            text-transform: uppercase; text-align: center; margin-bottom: -5px; margin-top: 5px;
-        }
-        .craft-btn {
-            background: linear-gradient(145deg, #3e2723, #27150c); border: 2px solid #5c3a21; border-radius: 10px;
-            color: #ecf0f1; font-size: 24px; padding: 10px 0; display: flex; flex-direction: column;
-            align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #1a0e08;
-            font-family: 'Poppins', sans-serif;
-        }
+        #kitchen-station { background: #1a0e08; padding: 15px; border-top: 4px solid #f1c40f; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10; position: relative; }
+        .btn-group-title { grid-column: span 4; font-size: 11px; color: #d4a373; text-transform: uppercase; text-align: center; margin-bottom: -5px; margin-top: 5px; }
+        .craft-btn { background: linear-gradient(145deg, #3e2723, #27150c); border: 2px solid #5c3a21; border-radius: 10px; color: #ecf0f1; font-size: 24px; padding: 10px 0; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #1a0e08; font-family: 'Poppins', sans-serif; }
         .craft-btn span { font-size: 10px; font-weight: 700; margin-top: 5px; }
         .craft-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #1a0e08; }
-        
         .action-btn { background: linear-gradient(145deg, #c0392b, #922b21); border-color: #e74c3c; grid-column: span 2; box-shadow: 0 4px 0 #7b241c;}
         .action-btn:active { box-shadow: 0 0 0 #7b241c; }
         .serve-btn { background: linear-gradient(145deg, #27ae60, #1e8449); border-color: #2ecc71; grid-column: span 2; box-shadow: 0 4px 0 #196f3d;}
         .serve-btn:active { box-shadow: 0 0 0 #196f3d; }
 
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(26, 14, 8, 0.95); z-index: 30;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-        }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 14, 8, 0.95); z-index: 30; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .overlay h1 { color: #f1c40f; font-size: 36px; margin: 0 0 5px 0; text-transform: uppercase; text-shadow: 0 5px 10px rgba(0,0,0,0.8); }
         .overlay h2 { color: #fff; font-size: 18px; margin: 0 0 20px 0; letter-spacing: 2px; }
         .overlay p { color: #ecf0f1; font-size: 14px; margin-bottom: 30px; padding: 15px; border-radius: 10px; border: 1px solid #5c3a21; background: rgba(0,0,0,0.5); }
-        .start-btn {
-            background: #f1c40f; color: #1a0e08; border: none; padding: 15px 40px;
-            font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 6px 0 #b7950b; font-family: 'Poppins', sans-serif;
-        }
+        .start-btn { background: #f1c40f; color: #1a0e08; border: none; padding: 15px 40px; font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer; box-shadow: 0 6px 0 #b7950b; font-family: 'Poppins', sans-serif; }
         .start-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #b7950b; }
 
-        .hidden { display: none !important; }
-        .shake-err { animation: shake 0.3s ease-in-out; border-color: #e74c3c !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-    </style>
-</head>
-<body>
-
-<div id="game-container">
-    <div id="ocean-view"><div class="sun"></div></div>
-    <div id="ship-deck"></div>
-
-    <div id="hud">
-        <div class="stat-box"><span class="stat-label">Score</span><span class="stat-value" id="score">0</span></div>
-        <div class="stat-box"><span class="stat-label">Time</span><span class="stat-value" id="timer" style="color:#e74c3c;">60s</span></div>
-        <div class="stat-box"><span class="stat-label">Combo</span><span class="stat-value" id="combo">x1</span></div>
-    </div>
-
-    <div id="order-zone" class="hidden">
-        <div class="customer-avatar" id="customer">👒</div>
-        <div class="order-details">
-            I need a <br><span id="order-name" style="color:#d35400; font-size:18px;"></span>!
-            <div id="recipe-hint"></div>
-        </div>
-    </div>
-
-    <div id="prep-zone">
-        <div id="plate">
-            <div class="status-badge" id="plate-status">EMPTY</div>
-        </div>
-    </div>
-
-    <div id="kitchen-station">
-        <div class="btn-group-title">1. Wrapper & 2. Fillings</div>
-        <button class="craft-btn" onclick="addIngredient('wrapper', '🥟')">🥟<span>Dough</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🍖')">🍖<span>Meat</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🥬')">🥬<span>Veggie</span></button>
-        <button class="craft-btn" onclick="addIngredient('filling', '🦐')">🦐<span>Shrimp</span></button>
-        
-        <div class="btn-group-title">3. Cooking Method</div>
-        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '♨️')">♨️<span>Steam</span></button>
-        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '🍳')">🍳<span>Pan-Fry</span></button>
-
-        <div class="btn-group-title">4. Actions</div>
-        <button class="craft-btn action-btn" onclick="trashPlate()">🗑️<span>Trash</span></button>
-        <button class="craft-btn serve-btn" onclick="serveOrder()">🛎️<span>Serve</span></button>
-    </div>
-
-    <div class="overlay" id="start-screen">
-        <h1>Dumpling Master</h1>
-        <h2>BARATIE KITCHEN</h2>
-        <p>1. Add Dough (🥟)<br>2. Add Filling (🍖,🥬,🦐)<br>3. Cook it (♨️ or 🍳)<br>4. Serve! (🛎️)</p>
-        <button class="start-btn" onclick="startGame()">ENTER KITCHEN</button>
-    </div>
-
-    <div class="overlay hidden" id="game-over-screen">
-        <h1>Shift Over!</h1>
-        <p style="font-size: 20px; font-weight:bold; border:none; background:none;">Final Score: <span id="final-score" style="color:#f1c40f; font-size:28px;">0</span></p>
-        <button class="start-btn" onclick="startGame()">PLAY AGAIN</button>
-    </div>
-</div>
-
-<script>
-    const menu = [
-        { name: "Steamed Pork Bao", req: { wrapper: true, filling: '🍖', cook: '♨️' }, hint: "Dough + Meat + Steam" },
-        { name: "Fried Veggie Gyoza", req: { wrapper: true, filling: '🥬', cook: '🍳' }, hint: "Dough + Veggie + Fry" },
-        { name: "Spicy Shrimp Har Gow", req: { wrapper: true, filling: '🦐', cook: '♨️' }, hint: "Dough + Shrimp + Steam" },
-        { name: "Fried Meat Dumpling", req: { wrapper: true, filling: '🍖', cook: '🍳' }, hint: "Dough + Meat + Fry" }
-    ];
-    const characters = ["👒", "⚔️", "🍊", "🦌", "🦈", "⚓", "🏴‍☠️"];
-    
-    let state = { score: 0, timeLeft: 60, combo: 1, isPlaying: false, currentOrder: null, plate: { wrapper: false, filling: null, cook: null } };
-    let timerInterval;
-
-    function startGame() {
-        state = { score: 0, timeLeft: 60, combo: 1, isPlaying: true, currentOrder: null, plate: { wrapper: false, filling: null, cook: null } };
-        document.getElementById("start-screen").classList.add("hidden");
-        document.getElementById("game-over-screen").classList.add("hidden");
-        document.getElementById("order-zone").classList.remove("hidden");
-        updateHUD(); trashPlate(); generateOrder();
-        timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    function generateOrder() {
-        state.currentOrder = menu[Math.floor(Math.random() * menu.length)];
-        document.getElementById("customer").textContent = characters[Math.floor(Math.random() * characters.length)];
-        document.getElementById("order-name").textContent = state.currentOrder.name;
-        document.getElementById("recipe-hint").textContent = state.currentOrder.hint;
-    }
-
-    function addIngredient(type, icon) {
-        if (!state.isPlaying) return;
-        const plateEl = document.getElementById("plate");
-        if (type === 'wrapper' && !state.plate.wrapper) { state.plate.wrapper = true; renderPlate(); } 
-        else if (type === 'filling' && state.plate.wrapper && !state.plate.filling && !state.plate.cook) { state.plate.filling = icon; renderPlate(); } 
-        else if (type === 'cook' && state.plate.wrapper && state.plate.filling && !state.plate.cook) { state.plate.cook = icon; renderPlate(); } 
-        else {
-            plateEl.classList.add("shake-err");
-            setTimeout(() => plateEl.classList.remove("shake-err"), 300);
-        }
-    }
-
-    function renderPlate() {
-        const plateEl = document.getElementById("plate");
-        let html = ''; let status = "EMPTY";
-        if (state.plate.wrapper) { html += `<div class="plate-item" style="font-size: 75px; color:#f5cd79;">🥟</div>`; status = "RAW DOUGH"; }
-        if (state.plate.filling) { html += `<div class="plate-item" style="font-size: 40px; z-index:2; margin-top:10px;">${state.plate.filling}</div>`; status = "UNCOOKED"; }
-        if (state.plate.cook) {
-            html += `<div class="plate-item" style="font-size: 85px; z-index:3; opacity:0.85;">${state.plate.cook}</div>`;
-            status = "READY TO SERVE";
-            plateEl.style.borderColor = "#2ecc71";
-        } else { plateEl.style.borderColor = "#b2bec3"; }
-        html += `<div class="status-badge" id="plate-status">${status}</div>`;
-        plateEl.innerHTML = html;
-    }
-
-    function trashPlate() {
-        if (!state.isPlaying) return;
-        state.plate = { wrapper: false, filling: null, cook: null };
-        state.combo = 1; updateHUD(); renderPlate();
-    }
-
-    function serveOrder() {
-        if (!state.isPlaying) return;
-        let p = state.plate, req = state.currentOrder.req;
-        if (p.wrapper === req.wrapper && p.filling === req.filling && p.cook === req.cook) {
-            state.score += 20 * state.combo; state.combo++;
-            document.getElementById("plate").style.transform = "translateY(-60px) scale(0)";
-            setTimeout(() => { document.getElementById("plate").style.transform = "none"; trashPlate(); generateOrder(); }, 300);
-        } else {
-            state.score = Math.max(0, state.score - 10); state.combo = 1;
-            document.getElementById("plate").classList.add("shake-err");
-            setTimeout(() => document.getElementById("plate").classList.remove("shake-err"), 300);
-        }
-        updateHUD();
-    }
-
-    function updateTimer() {
-        state.timeLeft--;
-        document.getElementById("timer").textContent = state.timeLeft + "s";
-        if (state.timeLeft <= 0) endGame();
-    }
-
-    function updateHUD() {
-        document.getElementById("score").textContent = state.score;
-        document.getElementById("combo").textContent = "x" + state.combo;
-    }
-
-    function endGame() {
-        state.isPlaying = false; clearInterval(timerInterval);
-        document.getElementById("final-score").textContent = state.score;
-        document.getElementById("game-over-screen").classList.remove("hidden");
-        document.getElementById("order-zone").classList.add("hidden");
-    }
-</script>
-</body>
-</html>
+        /* INTRO SCENE STYLES */
+        #intro-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 40; display: flex; flex-direction: column; justify-content: flex
