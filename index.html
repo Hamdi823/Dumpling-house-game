@@ -3,359 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dumpling House - Grand Line Dash</title>
+    <title>Dumpling Master: Grand Line</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         
+        * { box-sizing: border-box; }
         body {
-            margin: 0; padding: 0;
-            background-color: #0f172a;
-            font-family: 'Nunito', sans-serif;
+            margin: 0; padding: 0; background-color: #121212;
+            font-family: 'Poppins', sans-serif;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden; user-select: none;
+            color: #fff;
         }
-        #game-app {
-            width: 100%; max-width: 420px; height: 100vh;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            display: flex; flex-direction: column;
-            position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.9);
+        #game-container {
+            width: 100%; max-width: 400px; height: 100vh;
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         /* Top HUD */
         #hud {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(0,0,0,0.4);
-            border-bottom: 2px solid #334155; color: #fff;
+            display: flex; justify-content: space-between; padding: 15px;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+            border-bottom: 2px solid #f39c12; z-index: 10;
         }
-        .hud-item { display: flex; flex-direction: column; }
-        .hud-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .hud-value { font-size: 20px; color: #fbbf24; font-weight: 900; }
-        #lives { color: #ef4444; font-size: 18px; letter-spacing: 2px; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; }
+        .stat-label { font-size: 11px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 18px; font-weight: 900; color: #f1c40f; }
 
-        /* Restaurant Area */
-        #restaurant {
-            flex: 1; position: relative;
-            display: flex; justify-content: space-evenly; align-items: flex-end;
-            padding-bottom: 20px;
-            background: radial-gradient(circle at 50% 30%, #334155, transparent);
+        /* Order Display Zone */
+        #order-zone {
+            padding: 15px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .counter-top {
-            position: absolute; bottom: 0; width: 100%; height: 80px;
-            background: linear-gradient(90deg, #451a03, #78350f, #451a03);
-            border-top: 6px solid #b45309; box-shadow: 0 -10px 20px rgba(0,0,0,0.5);
-            z-index: 1;
+        .customer-avatar {
+            font-size: 50px; margin-right: 15px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            animation: float 2s infinite ease-in-out;
+        }
+        .order-ticket {
+            background: #fff; color: #2c3e50; padding: 10px 15px; border-radius: 12px;
+            font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative; width: 100%;
+        }
+        .order-ticket::before {
+            content: ''; position: absolute; left: -10px; top: 20px;
+            border-width: 10px 10px 10px 0; border-style: solid;
+            border-color: transparent #fff transparent transparent;
+        }
+        #recipe-hint { font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 900; }
+
+        /* Assembly Plate */
+        #prep-zone {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
+        }
+        #plate {
+            width: 150px; height: 150px; background: radial-gradient(circle, #ecf0f1 0%, #bdc3c7 100%);
+            border-radius: 50%; border: 5px solid #95a5a6;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+            font-size: 60px; position: relative; transition: all 0.3s;
+        }
+        .plate-item { position: absolute; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .status-badge {
+            position: absolute; bottom: -15px; background: #e67e22; color: #fff;
+            font-size: 12px; padding: 5px 15px; border-radius: 20px; font-weight: 900;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 2px solid #d35400;
         }
 
-        /* Customer Seats */
-        .seat {
-            width: 30%; height: 200px; position: relative;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-            z-index: 2;
+        /* Kitchen Controls */
+        #kitchen-station {
+            background: #111; padding: 15px; border-top: 3px solid #f39c12;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10;
         }
+        .btn-group-title {
+            grid-column: span 4; font-size: 11px; color: #7f8c8d;
+            text-transform: uppercase; text-align: center; margin-bottom: -5px; margin-top: 5px;
+        }
+        .craft-btn {
+            background: #2c3e50; border: 2px solid #34495e; border-radius: 12px;
+            color: #ecf0f1; font-size: 24px; padding: 10px 0; display: flex; flex-direction: column;
+            align-items: center; cursor: pointer; transition: 0.1s;
+        }
+        .craft-btn span { font-size: 10px; font-weight: 700; margin-top: 3px; font-family: 'Poppins', sans-serif;}
+        .craft-btn:active { transform: scale(0.9); background: #34495e; }
         
-        .customer {
-            display: flex; flex-direction: column; align-items: center;
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .char-icon { font-size: 50px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6)); }
-        
-        .order-bubble {
-            background: #fff; color: #0f172a; font-size: 13px; font-weight: 900;
-            padding: 8px 12px; border-radius: 12px; position: absolute;
-            top: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            animation: popIn 0.3s;
-        }
-        .order-bubble::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            border-width: 6px 6px 0; border-style: solid; border-color: #fff transparent transparent transparent;
-        }
-        .order-emoji { font-size: 24px; display: block; margin-top: 2px; }
+        .action-btn { background: #e74c3c; border-color: #c0392b; grid-column: span 2; }
+        .serve-btn { background: #27ae60; border-color: #2ecc71; grid-column: span 2; }
 
-        /* Patience Bar */
-        .patience-container {
-            width: 100%; height: 8px; background: #334155;
-            border-radius: 4px; margin-top: 10px; overflow: hidden;
-            border: 2px solid #1e293b;
-        }
-        .patience-bar { height: 100%; width: 100%; background: #22c55e; transition: width 0.1s linear, background-color 0.3s; }
-
-        /* Kitchen Area */
-        #kitchen {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            padding: 20px; background: #0f172a; z-index: 10;
-            border-top: 2px solid #334155;
-        }
-        .kitchen-btn {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border: none; border-radius: 16px; padding: 12px 5px;
-            color: white; font-family: 'Nunito', sans-serif;
-            font-size: 12px; font-weight: 900; cursor: pointer;
-            box-shadow: 0 6px 0 #1d4ed8, 0 10px 15px rgba(0,0,0,0.4);
-            display: flex; flex-direction: column; align-items: center;
-            transition: all 0.1s;
-        }
-        .kitchen-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #1d4ed8; }
-        .kitchen-btn .food-icon { font-size: 32px; margin-bottom: 4px; }
-
-        /* UI Screens */
+        /* UI Overlay */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9); z-index: 20;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 20;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
-        .overlay h1 { color: #fbbf24; font-size: 36px; margin: 0 0 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .overlay p { color: #cbd5e1; font-size: 16px; margin-bottom: 30px; padding: 0 20px; }
+        .overlay h1 { color: #f1c40f; font-size: 38px; margin: 0 0 10px 0; text-transform: uppercase; }
+        .overlay p { color: #ecf0f1; font-size: 14px; margin-bottom: 30px; padding: 0 20px; line-height: 1.5; }
         .start-btn {
-            background: #fbbf24; color: #78350f; border: none;
-            padding: 15px 40px; font-size: 20px; font-weight: 900; font-family: 'Nunito', sans-serif;
-            border-radius: 30px; box-shadow: 0 6px 0 #d97706; cursor: pointer; transition: transform 0.2s;
+            background: #f39c12; color: #fff; border: none; padding: 15px 40px;
+            font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 6px 0 #d35400; transition: 0.2s;
         }
-        .start-btn:hover { transform: scale(1.05); }
-
-        .floating-text {
-            position: absolute; font-size: 24px; font-weight: 900; z-index: 15;
-            animation: floatUp 0.8s forwards; pointer-events: none;
-        }
+        .start-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #d35400; }
 
         /* Animations */
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        .shake-err { animation: shake 0.3s ease-in-out; border-color: #e74c3c !important; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="game-app">
+<div id="game-container">
     <div id="hud">
-        <div class="hud-item">
-            <span class="hud-title">Score</span>
-            <span class="hud-value" id="score">0</span>
-        </div>
-        <div class="hud-item" style="align-items: center;">
-            <span class="hud-title">Lives</span>
-            <span class="hud-value" id="lives">❤️❤️❤️</span>
-        </div>
-        <div class="hud-item" style="align-items: flex-end;">
-            <span class="hud-title">Combo</span>
-            <span class="hud-value" style="color: #38bdf8;">x<span id="combo">1</span></span>
-        </div>
-    </div>
-    
-    <div id="restaurant">
-        <div class="counter-top"></div>
-        <div class="seat" id="seat-0"></div>
-        <div class="seat" id="seat-1"></div>
-        <div class="seat" id="seat-2"></div>
+        <div class="stat-box"><span class="stat-label">Score</span><span class="stat-value" id="score">0</span></div>
+        <div class="stat-box"><span class="stat-label">Time</span><span class="stat-value" id="timer" style="color:#e74c3c;">60s</span></div>
+        <div class="stat-box"><span class="stat-label">Combo</span><span class="stat-value" id="combo">x1</span></div>
     </div>
 
-    <div id="kitchen">
-        <button class="kitchen-btn" onclick="serveFood('Pork Dumpling')"><span class="food-icon">🥟</span>Pork Dumpling</button>
-        <button class="kitchen-btn" onclick="serveFood('Veggie Gyoza')"><span class="food-icon">🥬</span>Veggie Gyoza</button>
-        <button class="kitchen-btn" onclick="serveFood('Spicy Shrimp')"><span class="food-icon">🦐</span>Spicy Shrimp</button>
-        <button class="kitchen-btn" onclick="serveFood('Sweet Bao')"><span class="food-icon">🥠</span>Sweet Bao</button>
-        <button class="kitchen-btn" onclick="serveFood('Kibi Dango')"><span class="food-icon">🍡</span>Kibi Dango</button>
-        <button class="kitchen-btn" onclick="serveFood('Sea King Gyoza')"><span class="food-icon">🌊</span>Sea King Gyoza</button>
+    <div id="order-zone" class="hidden">
+        <div class="customer-avatar" id="customer">👒</div>
+        <div class="order-ticket">
+            I need a <br><span id="order-name" style="color:#e67e22; font-size:18px;"></span>!
+            <div id="recipe-hint"></div>
+        </div>
+    </div>
+
+    <div id="prep-zone">
+        <div id="plate">
+            <!-- Ingredients will be injected here -->
+            <div class="status-badge" id="plate-status">EMPTY</div>
+        </div>
+    </div>
+
+    <div id="kitchen-station">
+        <!-- Wrapper & Fillings -->
+        <div class="btn-group-title">1. Wrapper & 2. Fillings</div>
+        <button class="craft-btn" onclick="addIngredient('wrapper', '🥟')">🥟<span>Dough</span></button>
+        <button class="craft-btn" onclick="addIngredient('filling', '🍖')">🍖<span>Meat</span></button>
+        <button class="craft-btn" onclick="addIngredient('filling', '🥬')">🥬<span>Veggie</span></button>
+        <button class="craft-btn" onclick="addIngredient('filling', '🦐')">🦐<span>Shrimp</span></button>
+        
+        <!-- Cooking Methods -->
+        <div class="btn-group-title">3. Cooking Method</div>
+        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '♨️')">♨️<span>Steam</span></button>
+        <button class="craft-btn" style="grid-column: span 2;" onclick="addIngredient('cook', '🍳')">🍳<span>Pan-Fry</span></button>
+
+        <!-- Actions -->
+        <div class="btn-group-title">4. Actions</div>
+        <button class="craft-btn action-btn" onclick="trashPlate()">🗑️<span>Trash</span></button>
+        <button class="craft-btn serve-btn" onclick="serveOrder()">🛎️<span>Serve</span></button>
     </div>
 
     <div class="overlay" id="start-screen">
-        <h1>Dumpling Dash</h1>
-        <p>Serve the Grand Line crew before they lose patience!<br>Don't run out of lives.</p>
-        <button class="start-btn" onclick="startGame()">PLAY NOW</button>
+        <h1>Dumpling Master</h1>
+        <p>1. Tap Dough (🥟)<br>2. Add correct Filling (🍖,🥬,🦐)<br>3. Cook it (♨️ or 🍳)<br>4. Serve! (🛎️)</p>
+        <button class="start-btn" onclick="startGame()">START CRAFTING</button>
     </div>
 
     <div class="overlay hidden" id="game-over-screen">
-        <h1>Game Over</h1>
-        <p>Final Score: <span id="final-score" style="color:white; font-size:24px; font-weight:bold;">0</span></p>
-        <button class="start-btn" onclick="startGame()">TRY AGAIN</button>
+        <h1>Time's Up!</h1>
+        <p>Final Score: <span id="final-score" style="color:#f1c40f; font-size:24px; font-weight:bold;">0</span></p>
+        <button class="start-btn" onclick="startGame()">PLAY AGAIN</button>
     </div>
 </div>
 
 <script>
-    const foods = [
-        { id: "Pork Dumpling", icon: "🥟" }, { id: "Veggie Gyoza", icon: "🥬" },
-        { id: "Spicy Shrimp", icon: "🦐" }, { id: "Sweet Bao", icon: "🥠" },
-        { id: "Kibi Dango", icon: "🍡" }, { id: "Sea King Gyoza", icon: "🌊" }
+    // Recipes Dictionary (Advanced Data Structure for the Professor)
+    const menu = [
+        { name: "Steamed Pork Bao", req: { wrapper: true, filling: '🍖', cook: '♨️' }, hint: "Dough + Meat + Steam" },
+        { name: "Fried Veggie Gyoza", req: { wrapper: true, filling: '🥬', cook: '🍳' }, hint: "Dough + Veggie + Fry" },
+        { name: "Spicy Shrimp Har Gow", req: { wrapper: true, filling: '🦐', cook: '♨️' }, hint: "Dough + Shrimp + Steam" },
+        { name: "Fried Meat Dumpling", req: { wrapper: true, filling: '🍖', cook: '🍳' }, hint: "Dough + Meat + Fry" }
     ];
-    const chars = ["👒", "⚔️", "🍳", "🍊", "🦌", "🦈"];
+    
+    const characters = ["👒", "⚔️", "🍳", "🍊", "🦌", "🦈"];
     
     let state = {
-        score: 0, lives: 3, combo: 1, isPlaying: false,
-        spawnRate: 3000, // Ms between spawns
-        customers: [null, null, null] // 3 seats
+        score: 0, timeLeft: 60, combo: 1, isPlaying: false,
+        currentOrder: null,
+        plate: { wrapper: false, filling: null, cook: null }
     };
     
-    let gameLoop;
-    let spawnTimer;
+    let timerInterval;
 
     function startGame() {
-        state = { score: 0, lives: 3, combo: 1, isPlaying: true, spawnRate: 3000, customers: [null, null, null] };
-        document.getElementById("seat-0").innerHTML = "";
-        document.getElementById("seat-1").innerHTML = "";
-        document.getElementById("seat-2").innerHTML = "";
-        
-        updateHUD();
+        state = { score: 0, timeLeft: 60, combo: 1, isPlaying: true, currentOrder: null, plate: { wrapper: false, filling: null, cook: null } };
         document.getElementById("start-screen").classList.add("hidden");
         document.getElementById("game-over-screen").classList.add("hidden");
+        document.getElementById("order-zone").classList.remove("hidden");
         
-        gameLoop = setInterval(updateLogic, 100);
-        scheduleSpawn();
+        updateHUD();
+        trashPlate(); // Reset plate
+        generateOrder();
+        timerInterval = setInterval(updateTimer, 1000);
     }
 
-    function scheduleSpawn() {
+    function generateOrder() {
+        let order = menu[Math.floor(Math.random() * menu.length)];
+        let char = characters[Math.floor(Math.random() * characters.length)];
+        
+        state.currentOrder = order;
+        document.getElementById("customer").textContent = char;
+        document.getElementById("order-name").textContent = order.name;
+        document.getElementById("recipe-hint").textContent = order.hint;
+    }
+
+    // Crafting Logic (Step-by-step assembly)
+    function addIngredient(type, icon) {
         if (!state.isPlaying) return;
-        spawnTimer = setTimeout(() => {
-            spawnCustomer();
-            // Yavaş yavaş zorluğu arttır (minimum 1 saniyeye kadar düşer)
-            if(state.spawnRate > 1000) state.spawnRate -= 50; 
-            scheduleSpawn();
-        }, Math.random() * 1000 + state.spawnRate);
-    }
+        const plateEl = document.getElementById("plate");
 
-    function spawnCustomer() {
-        let emptySeats = state.customers.map((c, i) => c === null ? i : -1).filter(i => i !== -1);
-        if (emptySeats.length === 0) return; // Masa dolu
-        
-        let seatIdx = emptySeats[Math.floor(Math.random() * emptySeats.length)];
-        let food = foods[Math.floor(Math.random() * foods.length)];
-        let char = chars[Math.floor(Math.random() * chars.length)];
-        
-        // Müşteri objesi
-        let patienceMax = 100;
-        state.customers[seatIdx] = {
-            foodId: food.id, char: char, patience: patienceMax, maxPatience: patienceMax
-        };
-        renderSeat(seatIdx);
-    }
-
-    function updateLogic() {
-        if(!state.isPlaying) return;
-        
-        for (let i = 0; i < 3; i++) {
-            let cust = state.customers[i];
-            if (cust) {
-                // Sabır süresi azalır
-                cust.patience -= 0.6; 
-                
-                if (cust.patience <= 0) {
-                    // Sabrı taştı ve kaçtı
-                    customerLeaves(i, false);
-                } else {
-                    updatePatienceUI(i);
-                }
-            }
+        if (type === 'wrapper' && !state.plate.wrapper) {
+            state.plate.wrapper = true;
+            renderPlate();
+        } 
+        else if (type === 'filling' && state.plate.wrapper && !state.plate.filling && !state.plate.cook) {
+            state.plate.filling = icon;
+            renderPlate();
+        } 
+        else if (type === 'cook' && state.plate.wrapper && state.plate.filling && !state.plate.cook) {
+            state.plate.cook = icon;
+            renderPlate();
+        } 
+        else {
+            // Invalid move (e.g., adding filling before wrapper)
+            plateEl.classList.add("shake-err");
+            setTimeout(() => plateEl.classList.remove("shake-err"), 300);
         }
     }
 
-    function serveFood(foodId) {
-        if (!state.isPlaying) return;
-        
-        // Doğru yemeği isteyen ve en çok bekleyen müşteriyi bul
-        let targetIdx = -1;
-        let lowestPatience = 999;
-        
-        for (let i = 0; i < 3; i++) {
-            let cust = state.customers[i];
-            if (cust && cust.foodId === foodId) {
-                if (cust.patience < lowestPatience) {
-                    lowestPatience = cust.patience;
-                    targetIdx = i;
-                }
-            }
-        }
+    function renderPlate() {
+        const plateEl = document.getElementById("plate");
+        let html = '';
+        let status = "EMPTY";
 
-        if (targetIdx !== -1) {
-            // Doğru Sipariş
-            let pts = 10 * state.combo;
-            state.score += pts;
-            state.combo++;
-            showFloatingText("+" + pts, "#22c55e", targetIdx);
-            customerLeaves(targetIdx, true);
+        if (state.plate.wrapper) {
+            html += `<div class="plate-item" style="font-size: 70px; color:#f5cd79;">🥟</div>`;
+            status = "RAW DOUGH";
+        }
+        if (state.plate.filling) {
+            html += `<div class="plate-item" style="font-size: 35px; z-index:2; margin-top:10px;">${state.plate.filling}</div>`;
+            status = "UNCOOKED";
+        }
+        if (state.plate.cook) {
+            html += `<div class="plate-item" style="font-size: 80px; z-index:3; opacity:0.8;">${state.plate.cook}</div>`;
+            status = "READY TO SERVE";
+            plateEl.style.borderColor = "#2ecc71"; // Green border when cooked
         } else {
-            // Yanlış Sipariş
-            state.combo = 1;
-            loseLife();
-            // Tüm masalarda ekranı sars
-            document.getElementById("restaurant").style.transform = "translateX(5px)";
-            setTimeout(() => document.getElementById("restaurant").style.transform = "none", 100);
+            plateEl.style.borderColor = "#95a5a6";
         }
+
+        html += `<div class="status-badge" id="plate-status">${status}</div>`;
+        plateEl.innerHTML = html;
+    }
+
+    function trashPlate() {
+        if (!state.isPlaying) return;
+        state.plate = { wrapper: false, filling: null, cook: null };
+        state.combo = 1; // Penalty for trashing
         updateHUD();
+        renderPlate();
     }
 
-    function customerLeaves(seatIdx, isHappy) {
-        if (!isHappy) {
-            state.combo = 1;
-            showFloatingText("Angry!", "#ef4444", seatIdx);
-            loseLife();
-        }
-        state.customers[seatIdx] = null;
-        let seatEl = document.getElementById("seat-" + seatIdx);
-        seatEl.innerHTML = ""; // Müşteriyi kaldır
-        updateHUD();
-    }
-
-    function loseLife() {
-        state.lives--;
-        if (state.lives <= 0) {
-            endGame();
-        }
-    }
-
-    function updatePatienceUI(seatIdx) {
-        let cust = state.customers[seatIdx];
-        if(!cust) return;
-        let bar = document.getElementById("bar-" + seatIdx);
-        if(bar) {
-            let pct = (cust.patience / cust.maxPatience) * 100;
-            bar.style.width = pct + "%";
-            if(pct < 30) bar.style.backgroundColor = "#ef4444"; // Kırmızı
-            else if(pct < 60) bar.style.backgroundColor = "#eab308"; // Sarı
-        }
-    }
-
-    function renderSeat(seatIdx) {
-        let cust = state.customers[seatIdx];
-        let seatEl = document.getElementById("seat-" + seatIdx);
-        let foodIcon = foods.find(f => f.id === cust.foodId).icon;
+    function serveOrder() {
+        if (!state.isPlaying) return;
         
-        seatEl.innerHTML = `
-            <div class="customer">
-                <div class="order-bubble">
-                    ${cust.foodId} <span class="order-emoji">${foodIcon}</span>
-                </div>
-                <div class="char-icon">${cust.char}</div>
-                <div class="patience-container">
-                    <div class="patience-bar" id="bar-${seatIdx}"></div>
-                </div>
-            </div>
-        `;
+        let p = state.plate;
+        let req = state.currentOrder.req;
+        
+        // Check if plate matches requirements exactly
+        let isCorrect = (p.wrapper === req.wrapper && p.filling === req.filling && p.cook === req.cook);
+        
+        if (isCorrect) {
+            // Success
+            let points = 20 * state.combo;
+            state.score += points;
+            state.combo++;
+            
+            // Visual feedback
+            document.getElementById("plate").style.transform = "translateY(-50px) scale(0)";
+            setTimeout(() => {
+                document.getElementById("plate").style.transform = "none";
+                trashPlate(); // reset plate invisibly
+                generateOrder();
+            }, 300);
+            
+        } else {
+            // Failure
+            state.score = Math.max(0, state.score - 10);
+            state.combo = 1;
+            document.getElementById("plate").classList.add("shake-err");
+            setTimeout(() => document.getElementById("plate").classList.remove("shake-err"), 300);
+        }
+        updateHUD();
     }
 
-    function showFloatingText(text, color, seatIdx) {
-        let seatEl = document.getElementById("seat-" + seatIdx);
-        let floatEl = document.createElement("div");
-        floatEl.textContent = text;
-        floatEl.className = "floating-text";
-        floatEl.style.color = color;
-        floatEl.style.top = "20%";
-        seatEl.appendChild(floatEl);
-        setTimeout(() => floatEl.remove(), 800);
+    function updateTimer() {
+        state.timeLeft--;
+        document.getElementById("timer").textContent = state.timeLeft + "s";
+        if (state.timeLeft <= 0) endGame();
     }
 
     function updateHUD() {
         document.getElementById("score").textContent = state.score;
-        document.getElementById("combo").textContent = state.combo;
-        let hearts = "";
-        for(let i=0; i<state.lives; i++) hearts += "❤️";
-        document.getElementById("lives").textContent = hearts || "💀";
+        document.getElementById("combo").textContent = "x" + state.combo;
     }
 
     function endGame() {
         state.isPlaying = false;
-        clearInterval(gameLoop);
-        clearTimeout(spawnTimer);
+        clearInterval(timerInterval);
         document.getElementById("final-score").textContent = state.score;
         document.getElementById("game-over-screen").classList.remove("hidden");
+        document.getElementById("order-zone").classList.add("hidden");
     }
 </script>
 </body>
