@@ -3,64 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dumpling Master: Baratie Edition</title>
+    <title>Dumpling Master: Baratie</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+        body { margin: 0; background-color: #1a1a2e; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; user-select: none; }
+        #game-app { width: 100%; max-width: 400px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         
-        * { box-sizing: border-box; }
+        #ocean { position: absolute; top: 0; width: 100%; height: 45%; background: linear-gradient(#4facfe, #00f2fe); }
+        #sun { position: absolute; top: 15%; right: 15%; width: 50px; height: 50px; background: #ffd700; border-radius: 50%; }
+        #deck { position: absolute; top: 45%; width: 100%; height: 55%; background: #5c3a21; border-top: 10px solid #27150c; }
         
-        body {
-            margin: 0; padding: 0; 
-            background-color: #2c3e50; 
-            font-family: 'Poppins', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; overflow: hidden; user-select: none;
-            color: #fff;
+        #hud { display: flex; justify-content: space-between; padding: 10px 15px; background: rgba(39, 21, 12, 0.9); border-bottom: 2px solid #f1c40f; z-index: 10; font-weight: bold; }
+        .hud-text { color: #f1c40f; font-size: 18px; display: block; }
+        
+        #order-zone { margin: 10px; padding: 15px; background: white; color: black; border-radius: 10px; z-index: 10; display: flex; align-items: center; border: 2px solid #f1c40f; font-weight: bold; }
+        
+        #prep-zone { flex: 1; display: flex; justify-content: center; align-items: center; z-index: 10; }
+        #plate { width: 140px; height: 140px; background: #eee; border-radius: 50%; border: 5px solid #ccc; display: flex; justify-content: center; align-items: center; position: relative; }
+        .item { position: absolute; }
+        
+        #kitchen { background: #1a0e08; padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 10; border-top: 4px solid #f1c40f; }
+        .btn { background: #3e2723; border: 2px solid #5c3a21; color: white; border-radius: 8px; padding: 10px 0; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 0 #1a0e08; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #1a0e08; }
+        .btn span { font-size: 10px; margin-top: 4px; }
+        .btn-red { background: #c0392b; border-color: #e74c3c; grid-column: span 2; box-shadow: 0 4px 0 #7b241c; }
+        .btn-green { background: #27ae60; border-color: #2ecc71; grid-column: span 2; box-shadow: 0 4px 0 #196f3d; }
+        
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 40; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        
+        #dialogue-box { background: white; color: black; width: 85%; padding: 20px; border-radius: 10px; border: 4px solid #f1c40f; position: relative; text-align: left; }
+        #z-btn { background: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; float: right; margin-top: 10px; }
+        
+        .main-btn { background: #f1c40f; color: black; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 30px; cursor: pointer; margin-top: 20px; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="game-app">
+    <div id="ocean"><div id="sun"></div></div>
+    <div id="deck"></div>
+
+    <div id="hud">
+        <div>Score <span class="hud-text" id="score">0</span></div>
+        <div>Time <span class="hud-text" id="timer" style="color:#e74c3c;">60s</span></div>
+        <div>Combo <span class="hud-text" id="combo">x1</span></div>
+    </div>
+
+    <div id="order-zone" class="hidden">
+        <div id="customer" style="font-size: 45px; margin-right: 15px;">👒</div>
+        <div>
+            I need a <br><span id="order-name" style="color:#d35400; font-size:16px;"></span>!
+            <div id="hint" style="color:#c0392b; font-size:11px; margin-top:5px;"></div>
+        </div>
+    </div>
+
+    <div id="prep-zone">
+        <div id="plate"></div>
+    </div>
+
+    <div id="kitchen">
+        <button class="btn" onclick="add('w', '🥟')">🥟<span>Dough</span></button>
+        <button class="btn" onclick="add('f', '🍖')">🍖<span>Meat</span></button>
+        <button class="btn" onclick="add('f', '🥬')">🥬<span>Veggie</span></button>
+        <button class="btn" onclick="add('f', '🦐')">🦐<span>Shrimp</span></button>
+        
+        <button class="btn" style="grid-column: span 2;" onclick="add('c', '♨️')">♨️<span>Steam</span></button>
+        <button class="btn" style="grid-column: span 2;" onclick="add('c', '🍳')">🍳<span>Fry</span></button>
+
+        <button class="btn btn-red" onclick="trash()">🗑️<span>Trash</span></button>
+        <button class="btn btn-green" onclick="serve()">🛎️<span>Serve</span></button>
+    </div>
+
+    <!-- Chef Zeff Intro -->
+    <div class="screen" id="intro">
+        <div id="dialogue-box">
+            <div style="font-size:50px; position:absolute; top:-60px; left:10px;">👨‍🍳</div>
+            <div style="color:#d35400; font-weight:bold; font-size:18px; margin-bottom:10px;">Chef Zeff</div>
+            <div id="d-text" style="font-weight:bold; min-height:50px;">Welcome to the Baratie, the finest sea restaurant on the Grand Line!</div>
+            <button id="z-btn" onclick="nextText()">NEXT ➡</button>
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="screen hidden" id="start">
+        <h1 style="color:#f1c40f;">BARATIE KITCHEN</h1>
+        <p style="background:rgba(0,0,0,0.5); padding:15px; border:1px solid #5c3a21;">1. Add Dough (🥟)<br>2. Add Filling (🍖,🥬,🦐)<br>3. Cook it (♨️ or 🍳)<br>4. Serve! (🛎️)</p>
+        <button class="main-btn" onclick="startGame()">START COOKING</button>
+    </div>
+
+    <!-- Game Over -->
+    <div class="screen hidden" id="game-over">
+        <h1>Shift Over!</h1>
+        <p style="font-size:20px;">Final Score: <span id="final-score" style="color:#f1c40f; font-weight:bold; font-size:28px;">0</span></p>
+        <button class="main-btn" onclick="startGame()">PLAY AGAIN</button>
+    </div>
+</div>
+
+<script>
+    const story = [
+        "Welcome to the Baratie, the finest sea restaurant on the Grand Line!",
+        "We are swamped with hungry pirates today. I need an extra hand.",
+        "Your job is to craft perfect dumplings. Dough, filling, cook, serve!",
+        "Don't mess up the orders or waste food. Get to work!"
+    ];
+    let sIdx = 0;
+
+    function nextText() {
+        sIdx++;
+        if(sIdx < story.length) {
+            document.getElementById("d-text").textContent = story[sIdx];
+        } else {
+            document.getElementById("intro").classList.add("hidden");
+            document.getElementById("start").classList.remove("hidden");
         }
-        
-        #game-container {
-            width: 100%; max-width: 400px; height: 100vh;
-            position: relative; display: flex; flex-direction: column;
-            background-color: #000;
-            box-shadow: 0 0 30px rgba(0,0,0,0.9); overflow: hidden;
-            border: 2px solid #34495e;
+    }
+
+    const menu = [
+        { n: "Pork Bao", req: { w: true, f: '🍖', c: '♨️' }, h: "Dough + Meat + Steam" },
+        { n: "Veggie Gyoza", req: { w: true, f: '🥬', c: '🍳' }, h: "Dough + Veggie + Fry" },
+        { n: "Shrimp Har Gow", req: { w: true, f: '🦐', c: '♨️' }, h: "Dough + Shrimp + Steam" },
+        { n: "Meat Dumpling", req: { w: true, f: '🍖', c: '🍳' }, h: "Dough + Meat + Fry" }
+    ];
+    const chars = ["👒", "⚔️", "🍊", "🦌", "🦈"];
+    
+    let st = { sc: 0, t: 60, cb: 1, p: false, ord: null, pl: { w: false, f: null, c: null } };
+    let timer;
+
+    function startGame() {
+        st = { sc: 0, t: 60, cb: 1, p: true, ord: null, pl: { w: false, f: null, c: null } };
+        document.getElementById("start").classList.add("hidden");
+        document.getElementById("game-over").classList.add("hidden");
+        document.getElementById("order-zone").classList.remove("hidden");
+        update(); trash(); makeOrder();
+        timer = setInterval(() => {
+            st.t--;
+            document.getElementById("timer").textContent = st.t + "s";
+            if(st.t <= 0) {
+                st.p = false; clearInterval(timer);
+                document.getElementById("final-score").textContent = st.sc;
+                document.getElementById("game-over").classList.remove("hidden");
+            }
+        }, 1000);
+    }
+
+    function makeOrder() {
+        st.ord = menu[Math.floor(Math.random() * menu.length)];
+        document.getElementById("customer").textContent = chars[Math.floor(Math.random() * chars.length)];
+        document.getElementById("order-name").textContent = st.ord.n;
+        document.getElementById("hint").textContent = st.ord.h;
+    }
+
+    function add(type, icon) {
+        if(!st.p) return;
+        if(type === 'w' && !st.pl.w) st.pl.w = true;
+        else if(type === 'f' && st.pl.w && !st.pl.f && !st.pl.c) st.pl.f = icon;
+        else if(type === 'c' && st.pl.w && st.pl.f && !st.pl.c) st.pl.c = icon;
+        draw();
+    }
+
+    function draw() {
+        let html = '';
+        if(st.pl.w) html += `<div class="item" style="font-size:75px; color:#f5cd79;">🥟</div>`;
+        if(st.pl.f) html += `<div class="item" style="font-size:40px; margin-top:10px; z-index:2;">${st.pl.f}</div>`;
+        if(st.pl.c) {
+            html += `<div class="item" style="font-size:85px; z-index:3; opacity:0.85;">${st.pl.c}</div>`;
+            document.getElementById("plate").style.borderColor = "#2ecc71";
+        } else {
+            document.getElementById("plate").style.borderColor = "#ccc";
         }
+        document.getElementById("plate").innerHTML = html;
+    }
 
-        #ocean-view { position: absolute; top: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); z-index: 0; }
-        .sun { position: absolute; top: 15%; right: 15%; width: 55px; height: 55px; background: #ffd700; border-radius: 50%; box-shadow: 0 0 30px #ffd700; }
-        #ship-deck { position: absolute; top: 40%; left: 0; width: 100%; height: 60%; background: #5c3a21; z-index: 0; border-top: 12px solid #27150c; box-shadow: inset 0 20px 20px rgba(0,0,0,0.5); }
+    function trash() {
+        if(!st.p) return;
+        st.pl = { w: false, f: null, c: null };
+        st.cb = 1; update(); draw();
+    }
 
-        #hud { display: flex; justify-content: space-between; padding: 12px 20px; background: rgba(39, 21, 12, 0.9); border-bottom: 3px solid #f1c40f; z-index: 10; position: relative; }
-        .stat-box { display: flex; flex-direction: column; align-items: center; }
-        .stat-label { font-size: 11px; color: #d4a373; text-transform: uppercase; font-weight: bold; }
-        .stat-value { font-size: 18px; font-weight: 900; color: #f1c40f; }
+    function serve() {
+        if(!st.p) return;
+        let p = st.pl, r = st.ord.req;
+        if(p.w === r.w && p.f === r.f && p.c === r.c) {
+            st.sc += 20 * st.cb; st.cb++;
+            document.getElementById("plate").style.transform = "scale(0)";
+            setTimeout(() => { document.getElementById("plate").style.transform = "none"; trash(); makeOrder(); }, 250);
+        } else {
+            st.sc = Math.max(0, st.sc - 10); st.cb = 1;
+        }
+        update();
+    }
 
-        #order-zone { padding: 15px; display: flex; align-items: center; justify-content: center; z-index: 10; position: relative; margin: 10px; background: rgba(255, 255, 255, 0.95); border-radius: 12px; border: 2px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
-        .customer-avatar { font-size: 45px; margin-right: 15px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
-        .order-details { color: #2c3e50; font-weight: 700; }
-        #recipe-hint { font-size: 12px; color: #c0392b; margin-top: 5px; font-weight: 900; }
-
-        #prep-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10; }
-        #plate { width: 150px; height: 150px; background: radial-gradient(circle, #fdfbfb 0%, #ebedee 100%); border-radius: 50%; border: 6px solid #b2bec3; display: flex; justify-content: center; align-items: center; box-shadow: 0 15px 25px rgba(0,0,0,0.6); font-size: 60px; position: relative; transition: all 0.3s; z-index: 10; }
-        .plate-item { position: absolute; }
-        .status-badge { position: absolute; bottom: -15px; background: #d35400; color: #fff; font-size: 12px; padding: 6px 18px; border-radius: 20px; font-weight: 900; box-shadow: 0 6px 10px rgba(0,0,0,0.5); border: 2px solid #e67e22; }
-
-        #kitchen-station { background: #1a0e08; padding: 15px; border-top: 4px solid #f1c40f; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 10; position: relative; }
-        .btn-group-title { grid-column: span 4; font-size: 11px; color: #d4a373; text-transform: uppercase; text-align: center; margin-bottom: -5px; margin-top: 5px; }
-        .craft-btn { background: linear-gradient(145deg, #3e2723, #27150c); border: 2px solid #5c3a21; border-radius: 10px; color: #ecf0f1; font-size: 24px; padding: 10px 0; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #1a0e08; font-family: 'Poppins', sans-serif; }
-        .craft-btn span { font-size: 10px; font-weight: 700; margin-top: 5px; }
-        .craft-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #1a0e08; }
-        .action-btn { background: linear-gradient(145deg, #c0392b, #922b21); border-color: #e74c3c; grid-column: span 2; box-shadow: 0 4px 0 #7b241c;}
-        .action-btn:active { box-shadow: 0 0 0 #7b241c; }
-        .serve-btn { background: linear-gradient(145deg, #27ae60, #1e8449); border-color: #2ecc71; grid-column: span 2; box-shadow: 0 4px 0 #196f3d;}
-        .serve-btn:active { box-shadow: 0 0 0 #196f3d; }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 14, 8, 0.95); z-index: 30; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .overlay h1 { color: #f1c40f; font-size: 36px; margin: 0 0 5px 0; text-transform: uppercase; text-shadow: 0 5px 10px rgba(0,0,0,0.8); }
-        .overlay h2 { color: #fff; font-size: 18px; margin: 0 0 20px 0; letter-spacing: 2px; }
-        .overlay p { color: #ecf0f1; font-size: 14px; margin-bottom: 30px; padding: 15px; border-radius: 10px; border: 1px solid #5c3a21; background: rgba(0,0,0,0.5); }
-        .start-btn { background: #f1c40f; color: #1a0e08; border: none; padding: 15px 40px; font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer; box-shadow: 0 6px 0 #b7950b; font-family: 'Poppins', sans-serif; }
-        .start-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #b7950b; }
-
-        /* INTRO SCENE STYLES */
-        #intro-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 40; display: flex; flex-direction: column; justify-content: flex
+    function update() {
+        document.getElementById("score").textContent = st.sc;
+        document.getElementById("combo").textContent = "x" + st.cb;
+    }
+</script>
+</body>
+</html>
